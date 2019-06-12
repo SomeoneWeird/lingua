@@ -1,0 +1,33 @@
+{
+  "name": "lingua",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/hook.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test ava test/**/*.ts",
+    "build": "tsc -p ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ava": "^2.1.0",
+    "escodegen": "^1.8.0",
+    "mocha": "^2.5.3",
+    "typescript": "^3.5.1"
+  },
+  "devDependencies": {
+    "ts-node": "^8.2.0"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  }
+}
