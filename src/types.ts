@@ -19,6 +19,7 @@ export enum TokenType {
   StringLiteral = 'StringLiteral',
   FunctionDefinition = 'FunctionDefinition',
   ClassDefinition = 'ClassDefinition',
+  ClassFunctionDefinition = 'ClassFunctionDefinition',
   SingleLineComment = 'SingleLineComment',
   MultiLineComment = 'MultiLineComment',
   Program = 'Program'
@@ -88,6 +89,26 @@ export namespace AST {
     body: Token[]
   }
 
+  interface ClassDefinitionNode {
+    type: TokenType.ClassDefinition,
+    name: string
+  }
+
+  interface ClassFunctionDefinitionNode {
+    type: TokenType.ClassFunctionDefinition,
+    name: string,
+    function: {
+      name: string,
+      body: Token
+    }
+  }
+
+  interface DefinitionNode {
+    type: TokenType.Definition,
+    definitionType: string,
+    name: string
+  }
+
   type BasicTokens =
     StringValueNode<TokenType.Literal> |
     StringValueNode<TokenType.StringLiteral> |
@@ -106,7 +127,10 @@ export namespace AST {
     FunctionDefinitionNode |
     FunctionArgumentsNode |
     ConsoleLogNode |
-    ProgramNode
+    ProgramNode |
+    ClassDefinitionNode |
+    ClassFunctionDefinitionNode |
+    DefinitionNode
 
   export type Token = BasicTokens | ComplexTokens
 }
@@ -124,11 +148,14 @@ export namespace Tokenizer {
   'scribe' |
   'incantation' |
   'archetype' |
+  'enchant' |
+  'with' |
   'named' |
   'called' |
   'and' |
   'an' |
   'a' |
+  'to' |
   '\n'
 
   interface TypeNode<T extends TokenType> {
@@ -165,7 +192,8 @@ export namespace Tokenizer {
     ValueNode<TokenType.Literal> |
     ValueNode<TokenType.StringLiteral> |
     ValueNode<TokenType.SingleLineComment> |
-    ValuesNode<TokenType.MultiLineComment>
+    ValuesNode<TokenType.MultiLineComment> |
+    TypeNode<TokenType.ClassFunctionDefinition>
 }
 
 export namespace Transformed {
@@ -178,7 +206,7 @@ export namespace Transformed {
     type: 'FunctionDeclaration',
     id: unknown,
     params: Token[],
-    defaults: unknown[],
+    defaults?: unknown[],
     body: {
       type: 'BlockStatement',
       body?: Token[]
@@ -213,12 +241,39 @@ export namespace Transformed {
     raw: string
   }
 
+  interface AssignmentExpression {
+    type: 'AssignmentExpression',
+    operator: '=',
+    left: Token,
+    right: Token
+  }
+
+  interface NewExpression {
+    type: 'NewExpression',
+    callee: Token,
+    arguments: unknown[]
+  }
+
+  interface VariableDeclarator {
+    type: 'VariableDeclarator',
+    id: Token,
+    init: NewExpression | null
+  }
+
+  interface VariableDeclaration {
+    type: 'VariableDeclaration',
+    declarations: VariableDeclarator[],
+    kind: 'const' | 'let'
+  }
+
   export type Token =
     ProgramNode |
     FunctionDeclarationNode |
     ExpressionStatementNode |
     MemberExpressionNode |
     ReturnStatement |
+    AssignmentExpression |
+    VariableDeclaration |
     Identifier |
     Literal
 }

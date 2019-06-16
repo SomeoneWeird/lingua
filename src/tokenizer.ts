@@ -17,11 +17,14 @@ export const TokenStringMap: Array<{
   { key: 'scribe', value: { type: TokenType.ConsoleLog } },
   { key: 'summon', value: { type: TokenType.ImportStatement } },
   { key: 'archetype', value: { type: TokenType.ClassDefinition } },
+  { key: 'enchant', value: { type: TokenType.ClassFunctionDefinition } },
   { key: 'and', value: { type: TokenType.Word } },
   { key: 'an', value: { type: TokenType.Word } },
   { key: 'a', value: { type: TokenType.Word } },
   { key: 'named', value: { type: TokenType.Word } },
   { key: 'called', value: { type: TokenType.Word } },
+  { key: 'with', value: { type: TokenType.Word } },
+  { key: 'to', value: { type: TokenType.Word } },
   { key: '\n', value: { type: TokenType.LineBreak } }
 ]
 

@@ -163,8 +163,15 @@ function toAST (tokens: Tokenizer.Token[]): AST.Token {
 
       const assignmentValueNode = process()
 
-      if (!assignmentValueNode || assignmentValueNode.type !== TokenType.Literal) {
+      if (!assignmentValueNode) {
         throw new Error('Must assign value to variable')
+      }
+
+      if (
+        assignmentValueNode.type !== TokenType.Literal &&
+        assignmentValueNode.type !== TokenType.StringLiteral
+      ) {
+        throw new Error(`Invalid assignment value for variable ${name}`)
       }
 
       return {
@@ -193,45 +200,38 @@ function toAST (tokens: Tokenizer.Token[]): AST.Token {
       }
     }
 
-    if (currentToken.type === TokenType.Definition) {
-      // Skip this
+    if (currentToken.type === TokenType.FunctionDefinition) {
       currentIndex++
 
-      const typeNode = tokens[currentIndex++]
+      const nameNode = tokens[currentIndex++]
 
-      if (typeNode.type === TokenType.FunctionDefinition) {
-        const nameNode = tokens[currentIndex++]
-        
-        if (nameNode.type !== TokenType.Literal) {
-          throw new Error('Assignment requires a literal')
-        }
-
-        const body = getDefinitionBody()
-
-        if (body.length === 0) {
-          throw new Error('Functions require bodies')
-        }
-
-        let args: AST.Token[] = []
-
-        const first = body[0]
-
-        // Check if we have any function arguments, and if we
-        // do, then pull them out of the function body and use them.
-        if (first.type === TokenType.FunctionArguments) {
-          args = first.args
-          body.shift()
-        }
-
-        return {
-          type: TokenType.FunctionDefinition,
-          name: nameNode.value,
-          body,
-          args
-        }
+      if (nameNode.type !== TokenType.Literal) {
+        throw new Error('Assignment requires a literal')
       }
 
-      // TODO: Handle variable assignment
+      const body = getDefinitionBody()
+
+      if (body.length === 0) {
+        throw new Error('Functions require bodies')
+      }
+
+      let args: AST.Token[] = []
+
+      const first = body[0]
+
+      // Check if we have any function arguments, and if we
+      // do, then pull them out of the function body and use them.
+      if (first.type === TokenType.FunctionArguments) {
+        args = first.args
+        body.shift()
+      }
+
+      return {
+        type: TokenType.FunctionDefinition,
+        name: nameNode.value,
+        body,
+        args
+      }
     }
 
     if (currentToken.type === TokenType.ConsoleLog) {
@@ -250,6 +250,74 @@ function toAST (tokens: Tokenizer.Token[]): AST.Token {
       return {
         type: TokenType.ConsoleLog,
         args
+      }
+    }
+
+    if (currentToken.type === TokenType.ClassDefinition) {
+      // Skip this
+      currentIndex++
+
+      const nameNode = tokens[currentIndex++]
+
+      if (nameNode.type !== TokenType.Literal) {
+        throw new Error('classes must be named')
+      }
+
+      return {
+        type: TokenType.ClassDefinition,
+        name: nameNode.value
+      }
+    }
+
+    if (currentToken.type === TokenType.ClassFunctionDefinition) {
+      // Skip this
+      currentIndex++
+
+      const nameNode = tokens[currentIndex++]
+
+      if (nameNode.type !== TokenType.Literal) {
+        throw new Error('class functions must be named')
+      }
+
+      const body = process()
+
+      if (!body) {
+        throw new Error('class functions must have a body')
+      }
+
+      if (body.type !== TokenType.FunctionDefinition) {
+        throw new Error('class function has invalid body')
+      }
+
+      return {
+        type: TokenType.ClassFunctionDefinition,
+        name: nameNode.value,
+        function: {
+          name: body.name,
+          body
+        }
+      }
+    }
+
+    if (currentToken.type === TokenType.Definition) {
+      currentIndex++
+
+      const typeNode = tokens[currentIndex++]
+
+      if (!typeNode || typeNode.type !== TokenType.Literal) {
+        throw new Error('Assignment type must be a literal')
+      }
+
+      const nameNode = tokens[currentIndex++]
+
+      if (!nameNode || nameNode.type !== TokenType.Literal) {
+        throw new Error('Assignment name must be a literal')
+      }
+
+      return {
+        type: TokenType.Definition,
+        definitionType: typeNode.value,
+        name: nameNode.value
       }
     }
 
