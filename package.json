@@ -19,6 +19,7 @@
     "typescript": "^3.5.1"
   },
   "devDependencies": {
+    "@types/escodegen": "0.0.6",
     "ts-node": "^8.2.0"
   },
   "ava": {

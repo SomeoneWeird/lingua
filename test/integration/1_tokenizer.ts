@@ -1,19 +1,21 @@
 import test from 'ava'
 
-import tokenizer, { TokenType } from '../../src/tokenizer'
+import tokenizer from '../../src/tokenizer'
+
+import { TokenType } from '../../src/types'
 
 const magic1Incantation = `
   twas an incantation named foobar
     it required a name and a location
 
-    scribe name
-    scribe location
+    // scribe name
+    // scribe location
     shazam five
   terminus
 `
 
-const magic2Incation = `
-  achetype Wizard
+const magic2Incantation = `
+  archetype Wizard
 
   enchant Wizard with an incantation named say
     it required a name and a sentence
@@ -25,8 +27,6 @@ const magic2Incation = `
 
   Hagrid cast say 'harry' 'youre a wizard now'
 `
-
-console.log(tokenizer(magic2Incation))
 
 const magic = [
   {
@@ -56,15 +56,15 @@ const magic = [
       { type: TokenType.Return },
       { type: TokenType.Literal, value: 'five' },
       { type: TokenType.LineBreak },
-      { type: TokenType.Literal, value: 'terminus' },
+      { type: TokenType.DefinitionFinish },
       { type: TokenType.LineBreak }
     ]
   },
   {
-    incantation: magic2Incation,
+    incantation: magic2Incantation,
     result: [
       { type: TokenType.LineBreak },
-      { type: TokenType.Literal, value: 'achetype' },
+      { type: TokenType.ClassDefinition },
       { type: TokenType.Literal, value: 'Wizard' },
       { type: TokenType.LineBreak },
       { type: TokenType.LineBreak },
@@ -90,7 +90,7 @@ const magic = [
       { type: TokenType.StringLiteral, value: ': ' },
       { type: TokenType.Literal, value: 'sentence' },
       { type: TokenType.LineBreak },
-      { type: TokenType.Literal, value: 'terminus' },
+      { type: TokenType.DefinitionFinish },
       { type: TokenType.LineBreak },
       { type: TokenType.LineBreak },
       { type: TokenType.Definition },
@@ -112,6 +112,6 @@ const magic = [
 
 magic.forEach((script, index) => {
   test(`Magic Script ${index}`, (t) => {
-    t.deepEqual(tokenizer(script.incantation), script.result)
+    t.deepEqual(script.result, tokenizer(script.incantation))
   })
 })

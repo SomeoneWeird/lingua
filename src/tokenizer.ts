@@ -1,55 +1,32 @@
 import * as util from 'util'
 
-interface Token {
-  type: string,
-  value?: string
-  values?: string[]
-}
+import { Tokenizer, TokenType } from './types'
 
-// TODO: remove spaces, match either space or linebreak at end
-export enum TokenString {
-  Twas = 'twas ',
-  ItRequired = 'it required ',
-  Transmute = 'transmute ',
-  Shazam = 'shazam ',
-  FancyThat = 'fancy that ',
-  Terminus = 'terminus ',
-  Summon = 'summon ',
-  Albeit = 'albiet ',
-  Scribe = 'scribe ',
-  Incantation = 'incantation ',
-  Archetype = 'archetype '
-}
+export const TokenStringMap: Array<{
+  key: Tokenizer.TokenString,
+  value: Tokenizer.Token
+}> = [
+  { key: 'twas', value: { type: TokenType.Definition } },
+  { key: 'it required', value: { type: TokenType.FunctionArguments } },
+  { key: 'transmute', value: { type: TokenType.AssignmentOperator } },
+  { key: 'incantation', value: { type: TokenType.FunctionDefinition } },
+  { key: 'shazam', value: { type: TokenType.Return } },
+  { key: 'fancy that', value: { type: TokenType.IfStatement } },
+  { key: 'albeit', value: { type: TokenType.ElseStatement } },
+  { key: 'terminus', value: { type: TokenType.DefinitionFinish } },
+  { key: 'scribe', value: { type: TokenType.ConsoleLog } },
+  { key: 'summon', value: { type: TokenType.ImportStatement } },
+  { key: 'archetype', value: { type: TokenType.ClassDefinition } },
+  { key: 'and', value: { type: TokenType.Word } },
+  { key: 'an', value: { type: TokenType.Word } },
+  { key: 'a', value: { type: TokenType.Word } },
+  { key: 'named', value: { type: TokenType.Word } },
+  { key: 'called', value: { type: TokenType.Word } },
+  { key: '\n', value: { type: TokenType.LineBreak } }
+]
 
-export enum TokenWord {
-  a = 'a ',
-  an = 'an ',
-  and = 'and ',
-  named = 'named '
-}
-
-export enum TokenType {
-  Word = 'Word',
-  LineBreak = 'LineBreak',
-  AssignmentOperator = 'AssignmentOperator',
-  Definition = 'Definition',
-  DefinitionPoint = 'DefinitionPoint',
-  Return = 'Return',
-  ArrayStart = 'ArrayStart',
-  ArrayEnd = 'ArrayEnd',
-  ImportStatement = 'ImportStatement',
-  FunctionArguments = 'FunctionArguments',
-  IfStatement = 'IfStatement',
-  ElseStatement = 'ElseStatement',
-  ConsoleLog = 'ConsoleLog',
-  Literal = 'Literal',
-  StringLiteral = 'StringLiteral',
-  FunctionDefinition = 'FunctionDefinition',
-  ClassDefinition = 'ClassDefinition'
-}
-
-export default function tokenizer (input: string): Token[] {
-  const out: Token[] = []
+export default function tokenizer (input: string): Tokenizer.Token[] {
+  const out: Tokenizer.Token[] = []
   
   let currentPosition: number = 0
 
@@ -58,7 +35,7 @@ export default function tokenizer (input: string): Token[] {
 
     while (true) {
       const nextIndex = currentPosition + bucket.length
-      let nextToken = input[nextIndex]
+      const nextToken = input[nextIndex]
       if (!nextToken) {
         break
       }
@@ -75,46 +52,19 @@ export default function tokenizer (input: string): Token[] {
     return bucket
   }
 
-  function lookaheadString (str: TokenString | TokenWord, add: boolean, type: string, value?: string): boolean {
-    let _tokens = str.split('')
+  function lookaheadString (str: Tokenizer.TokenString): null | number {
+    const _tokens = str.split('')
     for (let i = 0; i < _tokens.length; i++) {
       if (input[currentPosition + i] !== _tokens[i]) {
-        return false
+        return null
       }
     }
-    if (add) {
-      const obj: Token = { type }
-      
-      if (value) obj.value = value
-
-      out.push(obj)
-      currentPosition += _tokens.length
-    }
-    return true
-  }
-
-  function singleAdd (match: string, type: string, value?: string) {
-    let currentToken = input[currentPosition]
-    if (currentToken !== match) {
-      return false
-    }
-    let tmp: {
-      type: string,
-      value?: string
-    } = {
-      type
-    }
-    if (value) {
-      tmp.value = value
-    }
-    out.push(tmp)
-    currentPosition++
-    return true
+    return _tokens.length
   }
 
   while (currentPosition < input.length) {
-    let currentToken: string = input[currentPosition]
-    let nextToken: string = input[currentPosition + 1]
+    const currentToken: string = input[currentPosition]
+    const nextToken: string = input[currentPosition + 1]
 
     if (currentToken === ' ') {
       // ignore
@@ -122,66 +72,35 @@ export default function tokenizer (input: string): Token[] {
       continue
     }
 
-    // Linebreaks
-    if (singleAdd('\n', TokenType.LineBreak)) continue
+    let matchedString: boolean = false
 
-    // Assignments
-    if (lookaheadString(TokenString.Twas, true, TokenType.Definition)) continue
-    if (lookaheadString(TokenString.ItRequired, true, TokenType.FunctionArguments)) continue
-    if (lookaheadString(TokenString.Transmute, true, TokenType.AssignmentOperator)) continue
-    if (lookaheadString(TokenString.Incantation, true, TokenType.FunctionDefinition)) continue
-    if (lookaheadString(TokenString.Shazam, true, TokenType.Return)) continue
+    TokenStringMap.forEach((pair) => {
+      const { key, value } = pair
 
-    if (lookaheadString(TokenString.FancyThat, true, TokenType.IfStatement)) continue
-    if (lookaheadString(TokenString.Albeit, true, TokenType.ElseStatement)) continue
+      const match = lookaheadString(key)
 
-    if (lookaheadString(TokenString.Terminus, true, TokenType.DefinitionPoint, 'end')) continue
-    
-    if (lookaheadString(TokenString.Scribe, true, TokenType.ConsoleLog)) continue
-    
-    if (lookaheadString(TokenString.Summon, true, TokenType.ImportStatement)) continue
+      if (!match) {
+        return
+      }
 
-    if (lookaheadString(TokenString.Archetype, true, TokenType.ClassDefinition)) continue
+      out.push(value)
+      currentPosition += match
+      matchedString = true
+    })
 
-
-    if (lookaheadString(TokenWord.and, true, TokenType.Word)) continue
-    if (lookaheadString(TokenWord.an, true, TokenType.Word)) continue
-    if (lookaheadString(TokenWord.a, true, TokenType.Word)) continue
-
-    // if (singleAdd('[', TokenType.ArrayStart)) continue
-    // if (singleAdd(']', TokenType.ArrayEnd)) continue
-    
-    let literalRegex = /[a-zA-Z]/
-    let literalRegexNext = /[a-zA-Z0-9\.]/
-
-    if (literalRegex.test(currentToken)) {
-      let literalBucket = lookahead(literalRegex, literalRegexNext)
-      currentPosition += literalBucket.length
-      let str = literalBucket.join('')
-      out.push({
-        type: TokenType.Literal,
-        value: str
-      })
+    if (matchedString) {
       continue
     }
 
-    let numberLiteralRegex = /[0-9]/
-    let numberLiteralRegexNext = /[0-9\.]/
+    const literalRegex = /[a-zA-Z]/
+    const literalRegexNext = /[a-zA-Z0-9\.]/
 
-    if (numberLiteralRegex.test(currentToken)) {
-      let numberBucket = lookahead(numberLiteralRegex, numberLiteralRegexNext)
-      currentPosition += numberBucket.length
-      let type = 'NumberLiteral'
-      let value = numberBucket.join('')
-      if (~value.indexOf('.')) {
-        type = 'FloatLiteral'
-      }
-      if (/\.$/.test(value)) {
-        throw new Error('invalid character .')
-      }
+    if (literalRegex.test(currentToken)) {
+      const literalBucket = lookahead(literalRegex, literalRegexNext)
+      currentPosition += literalBucket.length
       out.push({
-        type: type,
-        value: value
+        type: TokenType.Literal,
+        value: literalBucket.join('')
       })
       continue
     }
@@ -189,7 +108,7 @@ export default function tokenizer (input: string): Token[] {
     // Start of StringLiteral
     if (currentToken === "'") {
       currentPosition++ // skip first '
-      let bucket = lookahead(/[^']/)
+      const bucket = lookahead(/[^']/)
       currentPosition += bucket.length
       out.push({
         type: TokenType.StringLiteral,
@@ -202,23 +121,23 @@ export default function tokenizer (input: string): Token[] {
     if (currentToken === '/') {
       if (nextToken === '/') {
         currentPosition += 2 // skip both //
-        let bucket = lookahead(/[^\n]/)
+        const bucket = lookahead(/[^\n]/)
         currentPosition += bucket.length
         out.push({
-          type: 'SingleLineComment',
+          type: TokenType.SingleLineComment,
           value: bucket.join('')
         })
         continue
       }
       if (nextToken === '*') {
         currentPosition += 2 // skip both /*
-        let bucket = lookahead(/(?!\*\/)/)
+        const bucket = lookahead(/(?!\*\/)/)
         // that regex leaves us with */ still on the end, pop them off
         bucket.pop()
         bucket.pop()
         currentPosition += bucket.length
         out.push({
-          type: 'MultiLineComment',
+          type: TokenType.MultiLineComment,
           values: bucket.join('').split('\n')
         })
         currentPosition += 2 // skip */

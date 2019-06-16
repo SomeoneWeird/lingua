@@ -88,7 +88,7 @@ i transmuted foobar to five and altered foobaz to seven
 
 fancy that, foobar was <blah> foobaz,
   <body>
-albiet
+albeit
   <body>
 terminus
 ```
