@@ -1,108 +1,81 @@
-#
+# Lingua
 
+## Requirements
+- Magic
+- Happiness
 
-## requirements
-- magic
-- happiness
+### Language
 
-## Synonyms
-original | our translation
--- | --
-variable | rune
-import | summon
-export | _todo_
-return | shazam
-class | archetype
-function | incantation
-if | fancy that
-then | futhermore
-else | albiet
-__ | enchant
-terminus | _end statement_
-twas | _declaration_
-alter, transmute(d) | _assignement_
-[variableName]: [type] | twas a [type] named [variableName] 
-[variableName] = [value] | transmute [variableName] to [value]
+#### Ignored words
 
-## Ignored works
+There are certain words that are ignored so scripts can seem more english.
 
-* i
-* was
+Included but not limited to:
 
+| Word |
+|------|
+| and |
+| an |
+| a |
+| named |
+| called |
+| with |
+| to |
 
-```js
-  def fnName (name, string) {
-    console.log(`Hello ${name}: ${string}`)
-    return 5
-  }
-
-  twas an incantation named foobar
-    it required a name and a location
-
-    scribe `Hello ${name}: ${location}`
-    shazam five
-  terminus
-
-  I cast foobar with my name which was 'harry potter' and my location, 'under the stairs'
-
-  
-```
-
-```js
-twas a rune named stick // -> let stick
-transmute stick to five       // stick = 5
-```
+#### Class Definition
 
 ```
-twere hieroglyphs named foo and baz // let foo, baz
+archetype Wizard
 ```
 
+#### Variables
+
+Define a variable named `fred` of type `frog`.
+
+This type is ignored unless there is also a class defined of the same name, and if so, the variable will be instantiated as an instance of that class.
+
 ```
-there was a hieroglyph that twas a number that twas 5
-```
-
-```js
-achetype Wizard
-
-function Wizard {}
-```
-
-```js
-enchant Summoner with an incantation named foobar
-  it required a name and a string
-
-  scribe `Hello ${name}: ${string}`
-  shazam five
-terminus
-
-
-Summoner.prototype.foobar = (name, string) => {
-  console.log(`Hello ${name}: ${string}`)
-  return 5
-}
+twas a frog named fred
 ```
 
-```js
-twere runes named foobar and foobaz
-i transmuted foobar to five and altered foobaz to seven
+#### Assignment
 
-fancy that, foobar was <blah> foobaz,
-  <body>
-albeit
-  <body>
+```
+twas a frog named fred
+
+transmute fred to 'F R E D'
+```
+
+#### Logging
+
+```
+scribe 'hello' myVariable
+```
+
+#### Functions
+
+```
+twas an incantation say
+  it required a name and a sentence
+
+  scribe name 'said:' sentence
 terminus
 ```
 
-```js
-achetype Wizard
+#### Class Function
 
-enchant Wizard with an incantation named say
-  it required a name, and a sentence
+```
+archetype Wizard
 
-  scribe `Hello ${name}, ${sentence}`
+enchant Wizard with an incantation named jump
+  it required a height
+
+  scribe 'The wizard jumped to' height 'meters'
 terminus
+```
 
-twas a Wizard named Hagrid
+#### Return Value
 
-Hagrid cast say `harry`, `you're a wizard now`
+```
+shazam 'return this'
 ```
