@@ -108,6 +108,19 @@ export default function transformAST (ast: AST.Token): Transformed.Token {
         })
       }
 
+      case TokenType.ConsoleLog: {
+        return toMaybeExpressionStatement({
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            computed: false,
+            object: toIdentifier('console'),
+            property: toIdentifier('log')
+          },
+          arguments: node.args.map((child) => visit(child, node))
+        })
+      }
+
       case TokenType.Literal: return toIdentifier(node)
       case TokenType.StringLiteral: return toLiteral(node)
     }

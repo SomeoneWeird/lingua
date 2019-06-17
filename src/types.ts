@@ -266,6 +266,12 @@ export namespace Transformed {
     kind: 'const' | 'let'
   }
 
+  interface CallExpression {
+    type: 'CallExpression',
+    callee: MemberExpressionNode,
+    arguments: Token[]
+  }
+
   export type Token =
     ProgramNode |
     FunctionDeclarationNode |
@@ -274,6 +280,7 @@ export namespace Transformed {
     ReturnStatement |
     AssignmentExpression |
     VariableDeclaration |
+    CallExpression |
     Identifier |
     Literal
 }
