@@ -8,8 +8,8 @@ const magic1Incantation = `
   twas an incantation named foobar
     it required a name and a location
 
-    // scribe name
-    // scribe location
+    scribe name
+    scribe location
     shazam five
   terminus
 `
@@ -36,7 +36,7 @@ const magic = [
       { type: TokenType.Definition },
       { type: TokenType.Word },
       { type: TokenType.FunctionDefinition },
-      { type: TokenType.Literal, value: 'named' },
+      { type: TokenType.Word },
       { type: TokenType.Literal, value: 'foobar' },
       { type: TokenType.LineBreak },
       { type: TokenType.FunctionArguments },
@@ -68,12 +68,12 @@ const magic = [
       { type: TokenType.Literal, value: 'Wizard' },
       { type: TokenType.LineBreak },
       { type: TokenType.LineBreak },
-      { type: TokenType.Literal, value: 'enchant' },
+      { type: TokenType.ClassFunctionDefinition },
       { type: TokenType.Literal, value: 'Wizard' },
-      { type: TokenType.Literal, value: 'with' },
+      { type: TokenType.Word },
       { type: TokenType.Word },
       { type: TokenType.FunctionDefinition },
-      { type: TokenType.Literal, value: 'named' },
+      { type: TokenType.Word },
       { type: TokenType.Literal, value: 'say' },
       { type: TokenType.LineBreak },
       { type: TokenType.FunctionArguments },
@@ -96,7 +96,7 @@ const magic = [
       { type: TokenType.Definition },
       { type: TokenType.Word },
       { type: TokenType.Literal, value: 'Wizard' },
-      { type: TokenType.Literal, value: 'named' },
+      { type: TokenType.Word },
       { type: TokenType.Literal, value: 'Hagrid' },
       { type: TokenType.LineBreak },
       { type: TokenType.LineBreak },
